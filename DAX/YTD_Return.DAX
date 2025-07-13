@@ -1,0 +1,34 @@
+365DayReturn = 
+VAR LatestDate = MAX('crypto_data'[datetime])
+VAR PreviousDate = 
+    CALCULATE(
+        MAX('crypto_data'[datetime]),
+        FILTER(
+            ALL('crypto_data'),
+            'crypto_data'[symbol] = MAX('crypto_data'[symbol]) &&
+            'crypto_data'[datetime] < LatestDate &&
+            'crypto_data'[datetime] >= LatestDate - 365
+        )
+    )
+VAR LatestClose = 
+    CALCULATE(
+        MAX('crypto_data'[close]),
+        FILTER('crypto_data', 
+            'crypto_data'[symbol] = MAX('crypto_data'[symbol]) &&
+            'crypto_data'[datetime] = LatestDate
+        )
+    )
+VAR EarlierClose =
+    CALCULATE(
+        MAX('crypto_data'[close]),
+        FILTER('crypto_data', 
+            'crypto_data'[symbol] = MAX('crypto_data'[symbol]) &&
+            'crypto_data'[datetime] = PreviousDate
+        )
+    )
+RETURN
+IF(
+    NOT(ISBLANK(LatestClose)) && NOT(ISBLANK(EarlierClose)),
+    DIVIDE(LatestClose - EarlierClose, EarlierClose),
+    BLANK()
+)
