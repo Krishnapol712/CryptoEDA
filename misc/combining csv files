@@ -1,0 +1,28 @@
+import pandas as pd
+
+# Mapping file names to coin names
+file_map = {
+    'XRP_weekly.csv': 'XRP',
+    'bitcoin_weekly_ohlc_marketcap.csv': 'BTC',
+    'USDT_weekly.csv': 'USDT',
+    'ETH_weekly.csv': 'ETH',
+    'DOGE_weekly.csv': 'DOGE',
+    'ADA_weekly.csv': 'ADA'
+}
+
+# Initialize an empty DataFrame
+combined_df = pd.DataFrame()
+
+# Loop through each file and load
+for file_name, coin in file_map.items():
+    try:
+        df = pd.read_csv(file_name)
+        df['coin'] = coin  # Add a new column for the coin name
+        combined_df = pd.concat([combined_df, df], ignore_index=True)
+        print(f"✅ Loaded {file_name}")
+    except FileNotFoundError:
+        print(f"❌ File not found: {file_name}")
+
+# Save combined DataFrame as CSV
+combined_df.to_csv("crypto_combined.csv", index=False)
+print("\n📁 Combined CSV saved as: crypto_combined.csv")
