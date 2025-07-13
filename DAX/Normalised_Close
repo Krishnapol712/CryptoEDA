@@ -1,0 +1,13 @@
+NormalizedClose = 
+VAR MinDate = CALCULATE(MIN('crypto_data'[datetime]), ALL('crypto_data'))
+VAR FirstClose =
+    CALCULATE(
+        FIRSTNONBLANK('crypto_data'[close], 1),
+        FILTER(
+            ALL('crypto_data'),
+            'crypto_data'[symbol] = MAX('crypto_data'[symbol]) &&
+            'crypto_data'[datetime] = MinDate
+        )
+    )
+RETURN
+DIVIDE(MAX('crypto_data'[close]), FirstClose)
