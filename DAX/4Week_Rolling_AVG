@@ -1,0 +1,10 @@
+RollingAvg4Week = 
+CALCULATE(
+    AVERAGE('crypto_data'[close]),
+    FILTER(
+        ALL('crypto_data'),
+        'crypto_data'[symbol] = MAX('crypto_data'[symbol]) &&
+        'crypto_data'[datetime] <= MAX('crypto_data'[datetime]) &&
+        'crypto_data'[datetime] > MAX('crypto_data'[datetime]) - 28
+    )
+)
