@@ -1,0 +1,77 @@
+import requests
+import pandas as pd
+from datetime import datetime
+
+# CoinGecko IDs and symbols
+coins = {
+    'ethereum': 'ETH',
+    'ripple': 'XRP',
+    'cardano': 'ADA',
+    'tether': 'USDT',
+    'dogecoin': 'DOGE',
+    'stellar': 'XLM',
+    'polkadot': 'DOT',
+    'uniswap': 'UNI',
+    'chainlink': 'LINK',
+    'usd-coin': 'USDC',
+    'bitcoin-cash': 'BCH',
+    'litecoin': 'LTC',
+    'the-graph': 'GRT',
+    'ethereum-classic': 'ETC',
+    'filecoin': 'FIL',
+    'aave': 'AAVE',
+    'algorand': 'ALGO',
+    'eos': 'EOS'
+}
+
+# Loop through each coin
+for coin_id, symbol in coins.items():
+    try:
+        print(f"🔄 Fetching {symbol}...")
+
+        url = f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
+        params = {
+            "vs_currency": "usd",
+            "days": "365"
+        }
+
+        r = requests.get(url, params=params)
+        data = r.json()
+
+        if 'prices' not in data or 'market_caps' not in data:
+            print(f"❌ Skipping {symbol} - missing data")
+            continue
+
+        # Prices
+        price_df = pd.DataFrame(data['prices'], columns=['timestamp_ms', 'price'])
+        price_df['datetime'] = pd.to_datetime(price_df['timestamp_ms'], unit='ms')
+        price_df = price_df.drop(columns=['timestamp_ms'])
+        price_df.set_index('datetime', inplace=True)
+
+        # Market Caps
+        cap_df = pd.DataFrame(data['market_caps'], columns=['timestamp_ms', 'market_cap'])
+        cap_df['datetime'] = pd.to_datetime(cap_df['timestamp_ms'], unit='ms')
+        cap_df = cap_df.drop(columns=['timestamp_ms'])
+        cap_df.set_index('datetime', inplace=True)
+
+        # Merge
+        df = price_df.join(cap_df, how='inner')
+        df = df[df.index >= pd.Timestamp.now() - pd.DateOffset(days=365)]
+
+        # Weekly OHLC + Market Cap
+        weekly = pd.DataFrame()
+        weekly['open'] = df['price'].resample('W').first()
+        weekly['high'] = df['price'].resample('W').max()
+        weekly['close'] = df['price'].resample('W').last()
+        weekly['market_cap'] = df['market_cap'].resample('W').last()
+        weekly.reset_index(inplace=True)
+        weekly['symbol'] = symbol
+        weekly = weekly[['datetime', 'symbol', 'open', 'high', 'close', 'market_cap']]
+
+        # Save
+        filename = f"{symbol}_weekly.csv"
+        weekly.to_csv(filename, index=False)
+        print(f"✅ Saved {filename}")
+
+    except Exception as e:
+        print(f"❌ Error fetching {symbol}: {e}")
