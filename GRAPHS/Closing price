@@ -1,0 +1,25 @@
+import pandas as pd
+import plotly.express as px
+import glob
+
+# 1. Find all your weekly CSVs
+files = glob.glob("*_weekly*.csv")
+
+# 2. Loop through each file and plot individually
+for fn in files:
+    # symbol name
+    base = fn.split('_')[0].upper()
+    symbol = 'BTC' if base == 'BITCOIN' else base
+
+    # load data
+    df = pd.read_csv(fn, parse_dates=['datetime'])
+    
+    # build and show sep charts
+    fig = px.line(
+        df,
+        x='datetime',
+        y='close',
+        title=f'Weekly Closing Price — {symbol}',
+        labels={'datetime': 'Date', 'close': f'{symbol} Close (USD)'}
+    )
+    fig.show()
