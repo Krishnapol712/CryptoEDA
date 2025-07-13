@@ -14,29 +14,29 @@ for coin, file in file_map.items():
     # Rolling average (4-week window)
     df['rolling_avg'] = df['close'].rolling(window=4).mean()
 
-    # 1️⃣ Weekly Closing Price Chart
+    # Weekly Closing Price Chart
     fig_close = go.Figure()
     fig_close.add_trace(go.Scatter(x=df['datetime'], y=df['close'], name='Close', fill='tozeroy'))
     fig_close.update_layout(title=f'{coin} Weekly Closing Price', xaxis_title='Date', yaxis_title='Close Price')
     fig_close.write_html(f"{coin}_closing_price.html")
 
-    # 2️⃣ Close vs Rolling Average Chart
+    # Close vs Rolling Average Chart
     fig_avg = go.Figure()
     fig_avg.add_trace(go.Scatter(x=df['datetime'], y=df['close'], name='Close'))
     fig_avg.add_trace(go.Scatter(x=df['datetime'], y=df['rolling_avg'], name='4-Week Avg'))
     fig_avg.update_layout(title=f'{coin} Close vs 4-Week Rolling Average', xaxis_title='Date', yaxis_title='Price')
     fig_avg.write_html(f"{coin}_close_vs_avg.html")
 
-    # 3️⃣ Market Cap Chart
+    # Market Cap Chart
     fig_marketcap = go.Figure()
     fig_marketcap.add_trace(go.Bar(x=df['datetime'], y=df['market_cap'], name='Market Cap'))
     fig_marketcap.update_layout(title=f'{coin} Market Cap Over Time', xaxis_title='Date', yaxis_title='Market Cap')
     fig_marketcap.write_html(f"{coin}_market_cap.html")
 
-    # 4️⃣ Market Cap % Change Chart
+    # Market Cap % Change Chart
     fig_pct = go.Figure()
     fig_pct.add_trace(go.Scatter(x=df['datetime'], y=df['marketcap_pct_change'], name='Market Cap % Change'))
     fig_pct.update_layout(title=f'{coin} Market Cap % Change', xaxis_title='Date', yaxis_title='Change (%)')
     fig_pct.write_html(f"{coin}_marketcap_change_pct.html")
 
-    print(f"✅ HTML graphs saved for {coin}")
+    print(f"HTML graphs saved for {coin}")
